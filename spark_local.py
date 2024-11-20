@@ -3,13 +3,12 @@ from pyspark.sql import SparkSession
 from pyspark.sql import Row
 import re
 
-# Initialize Spark Context and Spark Session
 sc = SparkContext("local", "Reddit Comments Processing")
 spark = SparkSession(sc)
 
 # Step 1: Load Data
 # Load the raw text file
-raw_rdd = sc.textFile("data/scrambled/scrambled-reddit-covid-comments-new-v2.txt")
+raw_rdd = sc.textFile("data/scrambled/scrambled-reddit-covid-comments-full-v2.txt")
 
 
 def extract_link_info(link):
@@ -58,10 +57,7 @@ def map_to_comment_blocks(lines):
             body_lines.append(line)
 
     if link and created_utc and score and body_lines:
-        body = " ".join(body_lines).strip()
-        body = clean_comment_body(body)
-        sub_reddit, post_id, comment_id = extract_link_info(link)
-        yield (link, int(created_utc), int(score), sub_reddit, post_id, comment_id, body)
+        return
 
 comments_rdd = raw_rdd \
     .mapPartitions(lambda partition: map_to_comment_blocks(partition)) \
@@ -70,7 +66,5 @@ comments_rdd = raw_rdd \
 
 comments_df = comments_rdd.toDF(["link", "created_utc", "score", "sub_reddit", "post_id", "comment_id", "body",])
 
-# Step 5: Write DataFrame to CSV (you can specify the output path)
 output_path = "data/final-test/reddit-covid-parquet-full.parquet"
 comments_df.write.parquet(output_path)
-
