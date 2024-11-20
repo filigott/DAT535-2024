@@ -2,4 +2,6 @@ jupyter
 pandas
 fastparquet 
 pyspark
-csv
+matplotlib
+seaborn
+vaderSentiment
